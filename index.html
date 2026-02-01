@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrasi Kelas 5</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #2ecc71;
+            --warning: #e67e22;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --sidebar-hover: #34495e;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; background-color: #f4f7f6; color: #333; }
+
+        /* Sidebar Styling */
+        .sidebar { width: 280px; background: var(--primary); color: white; height: 100vh; position: fixed; padding-top: 10px; overflow-y: auto; z-index: 100; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
+        .profile-section { text-align: center; padding: 25px 15px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px; }
+        .profile-img-container { width: 110px; height: 110px; margin: 0 auto 15px auto; border-radius: 50%; border: 3px solid var(--secondary); overflow: hidden; background: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .profile-img { width: 100%; height: 100%; object-fit: cover; }
+        .label-jabatan { font-size: 0.85rem; font-weight: bold; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .nama-guru { font-weight: bold; font-size: 1.1rem; margin: 5px 0 2px 0; }
+        .nip-guru { font-size: 0.8rem; color: #bdc3c7; margin: 0; }
+        
+        .btn-edit-main { background: var(--warning); color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; margin-top: 15px; width: 90%; font-weight: bold; transition: 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-edit-main:hover { background: #d35400; transform: translateY(-2px); }
+
+        /* Menu List */
+        .menu-list { margin-top: 10px; }
+        .menu-item { padding: 16px 25px; cursor: pointer; transition: 0.3s; border-left: 5px solid transparent; display: flex; align-items: center; gap: 15px; font-size: 1rem; color: #ecf0f1; position: relative; }
+        .menu-item i:first-child { width: 25px; text-align: center; font-size: 1.2rem; color: #bdc3c7; transition: 0.3s; }
+        .menu-item:hover { background: var(--sidebar-hover); color: white; }
+        .menu-item.active { background: var(--sidebar-hover); border-left: 5px solid var(--secondary); color: white; }
+        .menu-item.active i:first-child { color: var(--secondary); }
+
+        /* Sub Menu Styling */
+        .arrow { margin-left: auto; transition: 0.3s; font-size: 0.8rem; }
+        .submenu { display: none; background: #243342; padding-left: 20px; }
+        .submenu-item { padding: 12px 25px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: #bdc3c7; transition: 0.3s; }
+        .submenu-item:hover { color: white; background: rgba(255,255,255,0.05); }
+        .submenu-item i { font-size: 0.8rem; width: 15px; }
+        .open .submenu { display: block; }
+        .open .arrow { transform: rotate(180deg); }
+
+        /* Main Content Styling */
+        .main-content { margin-left: 280px; padding: 40px; width: calc(100% - 280px); min-height: 100vh; }
+        .header-card { background: white; padding: 25px 35px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; border-bottom: 6px solid var(--primary); }
+        .header-text { flex-grow: 1; text-align: center; }
+        .instansi { color: var(--secondary); font-size: 1.7rem; font-weight: 800; margin: 0; letter-spacing: 0.5px; }
+        .judul-utama { color: var(--primary); font-size: 1.5rem; font-weight: 700; margin: 8px 0; }
+        .tahun-pelajaran { color: #7f8c8d; font-size: 1.1rem; font-weight: 500; }
+        .logo-box { width: 90px; height: 90px; display: flex; align-items: center; justify-content: center; }
+        .logo-img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        .welcome-banner { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 35px; border-radius: 15px; margin-bottom: 30px; position: relative; overflow: hidden; }
+        .welcome-banner h1 { margin: 0; font-size: 2rem; font-weight: 700; }
+        .live-clock { font-weight: 600; background: rgba(255,255,255,0.15); padding: 8px 20px; border-radius: 30px; font-size: 0.95rem; display: inline-block; margin-top: 15px; backdrop-filter: blur(5px); }
+
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+        .doc-card { background: white; padding: 25px; border-radius: 12px; border-top: 6px solid var(--secondary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; display: flex; flex-direction: column; }
+        .doc-card:hover { transform: translateY(-8px); box-shadow: 0 12px 20px rgba(0,0,0,0.1); }
+        .doc-card h3, .doc-card h4 { margin-top: 0; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .doc-card p { color: #666; font-size: 0.95rem; flex-grow: 1; line-height: 1.5; }
+
+        .btn-action { background: var(--secondary); color: white; border: none; padding: 12px 15px; border-radius: 8px; cursor: pointer; font-weight: 700; width: 100%; margin-top: 15px; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-action:hover { opacity: 0.9; transform: scale(1.02); }
+
+        .input-group { display: flex; flex-wrap: wrap; gap: 12px; background: white; padding: 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); align-items: center; }
+        .input-group input, .input-group select { padding: 12px; border: 1.5px solid #eee; border-radius: 8px; flex: 1; min-width: 180px; font-size: 0.95rem; }
+        .table-container { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: var(--primary); color: white; padding: 15px; text-align: left; font-size: 0.95rem; }
+        td { padding: 15px; border-bottom: 1px solid #f1f1f1; font-size: 0.9rem; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background-color: #fcfcfc; }
+
+        #panelPengaturan { display: none; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 30px; border-left: 6px solid var(--warning); animation: slideDown 0.4s ease-out; }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .config-table { width: 100%; border-collapse: collapse; }
+        .config-table td { padding: 12px 8px; }
+        .config-table input { width: 100%; padding: 10px; border: 1.5px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+
+        .content-section { display: none; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="profile-section">
+            <div class="profile-img-container">
+                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" id="profileDisplay" class="profile-img">
+            </div>
+            <div class="label-jabatan">Wali Kelas 5</div>
+            <div id="sideProfileInfo">
+                <p id="displayGuru" class="nama-guru">Abdul Mudhar, S.Pd.</p>
+                <p id="displayNIP" class="nip-guru">NIP. 197609242023211002</p>
+            </div>
+            <button class="btn-edit-main" onclick="togglePanelPengaturan()">
+                <i class="fas fa-id-card"></i> Edit Identitas
+            </button>
+        </div>
+        
+        <div class="menu-list">
+            <div class="menu-item active" id="menu-home" onclick="showSection('home', this)">
+                <i class="fas fa-home"></i> Dashboard
+            </div>
+
+            <div class="menu-container" id="container-perangkat">
+                <div class="menu-item" id="menu-perangkat" onclick="toggleSubmenu('container-perangkat', 'perangkat', this)">
+                    <i class="fas fa-file-signature"></i> Perangkat Ajar
+                    <i class="fas fa-chevron-down arrow"></i>
+                </div>
+                <div class="submenu">
+                    <div class="submenu-item" onclick="showSection('perangkat')"><i class="fas fa-calendar-check"></i> Kaldik</div>
+                    <div class="submenu-item" onclick="showSection('perangkat')"><i class="fas fa-book"></i> Modul Ajar</div>
+                    <div class="submenu-item" onclick="showSection('perangkat')"><i class="fas fa-calendar-alt"></i> Prota</div>
+                    <div class="submenu-item" onclick="showSection('perangkat')"><i class="fas fa-calendar-minus"></i> Promes</div>
+                </div>
+            </div>
+
+            <div class="menu-container" id="container-presensi">
+                <div class="menu-item" id="menu-presensi" onclick="toggleSubmenu('container-presensi', 'presensi', this)">
+                    <i class="fas fa-user-check"></i> Presensi & Siswa
+                    <i class="fas fa-chevron-down arrow"></i>
+                </div>
+                <div class="submenu">
+                    <div class="submenu-item" onclick="showSection('presensi')"><i class="fas fa-users"></i> Data Siswa</div>
+                    <div class="submenu-item" onclick="showSection('presensi')"><i class="fas fa-clipboard-list"></i> Absensi Harian</div>
+                </div>
+            </div>
+
+            <div class="menu-container" id="container-asesmen">
+                <div class="menu-item" id="menu-asesmen" onclick="toggleSubmenu('container-asesmen', 'asesmen', this)">
+                    <i class="fas fa-chart-line"></i> Hasil Asesmen
+                    <i class="fas fa-chevron-down arrow"></i>
+                </div>
+                <div class="submenu">
+                    <div class="submenu-item" onclick="showSection('asesmen')"><i class="fas fa-edit"></i> Nilai Formatif</div>
+                    <div class="submenu-item" onclick="showSection('asesmen')"><i class="fas fa-file-signature"></i> Nilai Sumatif</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header-card">
+            <div class="logo-box"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Logo_Kabupaten_Bangkalan.png/413px-Logo_Kabupaten_Bangkalan.png" id="kabDisplay" class="logo-img"></div>
+            <div class="header-text">
+                <div id="displaySekolah" class="instansi">UPTD SDN MARGANTOKO 2</div>
+                <div class="judul-utama">ADMINISTRASI PEMBELAJARAN KELAS 5</div>
+                <div class="tahun-pelajaran">Tahun Pelajaran 2025 - 2026 Semester 2</div>
+            </div>
+            <div class="logo-box"><img src="https://upload.wikimedia.org/wikipedia/commons/9/9c/Logo_Tut_Wuri_Handayani.png" id="logoDisplay" class="logo-img"></div>
+        </div>
+
+        <div id="panelPengaturan">
+            <h2 style="margin-top:0; color:var(--warning)"><i class="fas fa-user-cog"></i> Pengaturan Identitas Guru</h2>
+            <table class="config-table">
+                <tr><td width="200"><strong>Nama Sekolah</strong></td><td><input type="text" id="editSekolah" oninput="updateRealtime()"></td></tr>
+                <tr><td><strong>Nama Lengkap & Gelar</strong></td><td><input type="text" id="editGuru" oninput="updateRealtime()"></td></tr>
+                <tr><td><strong>NIP</strong></td><td><input type="text" id="editNIP" oninput="updateRealtime()"></td></tr>
+                <tr><td><strong>Foto Profil</strong></td><td><input type="file" accept="image/*" onchange="previewFile(this, 'profileDisplay', 'p')"></td></tr>
+                <tr><td><strong>Logo Kabupaten</strong></td><td><input type="file" accept="image/*" onchange="previewFile(this, 'kabDisplay', 'k')"></td></tr>
+                <tr><td><strong>Logo Sekolah / Tut Wuri</strong></td><td><input type="file" accept="image/*" onchange="previewFile(this, 'logoDisplay', 'l')"></td></tr>
+                <tr><td></td><td>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button class="btn-action" style="background:var(--success)" onclick="simpanIdentitas()"><i class="fas fa-save"></i> Simpan</button>
+                        <button class="btn-action" style="background:#bdc3c7" onclick="togglePanelPengaturan()"><i class="fas fa-times"></i> Batal</button>
+                    </div>
+                </td></tr>
+            </table>
+        </div>
+
+        <div id="home" class="content-section" style="display: block;">
+            <div class="welcome-banner">
+                <h1 id="sapaan">Selamat Datang, Pak Abdul!</h1>
+                <p id="subSapaan">Dashboard Administrasi Kelas 5 UPTD SDN MARGANTOKO 2</p>
+                <div class="live-clock" id="clockBox"><i class="far fa-calendar-alt"></i> Memuat Waktu...</div>
+            </div>
+            <div class="card-grid">
+                <div class="doc-card">
+                    <h3><i class="fas fa-folder-open"></i> Perangkat Ajar</h3>
+                    <p>Kelola Kalender Pendidikan, Modul Ajar, Prota, dan Promes dalam satu tempat.</p>
+                    <button class="btn-action" onclick="gotoMenu('perangkat')">Buka Perangkat <i class="fas fa-arrow-right"></i></button>
+                </div>
+                <div class="doc-card" style="border-top-color: var(--success);">
+                    <h3><i class="fas fa-users"></i> Data Siswa</h3>
+                    <p id="dashSiswa">0 Siswa Terdaftar</p>
+                    <button class="btn-action" style="background:var(--success)" onclick="gotoMenu('presensi')">Kelola Siswa <i class="fas fa-arrow-right"></i></button>
+                </div>
+                <div class="doc-card" style="border-top-color: var(--warning);">
+                    <h3><i class="fas fa-star"></i> Hasil Asesmen</h3>
+                    <p>Pantau perkembangan belajar siswa melalui nilai formatif dan sumatif.</p>
+                    <button class="btn-action" style="background:var(--warning)" onclick="gotoMenu('asesmen')">Olah Nilai <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="perangkat" class="content-section">
+            <h2 style="color:var(--primary)"><i class="fas fa-copy"></i> Dokumen Perangkat Ajar</h2>
+            <div class="card-grid">
+                <div class="doc-card" style="border-top-color: #f39c12;">
+                    <h4><i class="far fa-calendar-check"></i> Kalender Pendidikan</h4>
+                    <p>Unggah file PDF Kaldik untuk referensi cepat selama tahun pelajaran berjalan.</p>
+                    <input type="file" id="uploadKaldik" accept="application/pdf" style="display:none" onchange="prosesKaldik(this)">
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn-action" style="background:var(--warning)" onclick="document.getElementById('uploadKaldik').click()"><i class="fas fa-upload"></i> Upload PDF</button>
+                        <button class="btn-action" onclick="bukaKaldik()"><i class="fas fa-eye"></i> Lihat</button>
+                    </div>
+                </div>
+                <div class="doc-card"><h4><i class="fas fa-book"></i> Modul Ajar</h4><p>Rencana pembelajaran harian sesuai kurikulum.</p><button class="btn-action"><i class="fas fa-external-link-alt"></i> Buka</button></div>
+                <div class="doc-card" style="border-top-color: #9b59b6;"><h4><i class="fas fa-calendar-alt"></i> Prota</h4><p>Alokasi waktu pembelajaran selama satu tahun.</p><button class="btn-action"><i class="fas fa-external-link-alt"></i> Buka</button></div>
+                <div class="doc-card" style="border-top-color: #e74c3c;"><h4><i class="fas fa-calendar-minus"></i> Promes</h4><p>Rencana program pembelajaran per semester.</p><button class="btn-action"><i class="fas fa-external-link-alt"></i> Buka</button></div>
+            </div>
+        </div>
+
+        <div id="presensi" class="content-section">
+            <h2 style="color:var(--primary)"><i class="fas fa-user-graduate"></i> Manajemen Data Siswa</h2>
+            <div class="input-group">
+                <input type="text" id="inNis" placeholder="Masukkan NIS">
+                <input type="text" id="inNisn" placeholder="Masukkan NISN">
+                <input type="text" id="inNama" placeholder="Nama Lengkap Siswa">
+                <select id="inJk">
+                    <option value="">Jenis Kelamin</option>
+                    <option value="L">Laki-laki</option>
+                    <option value="P">Perempuan</option>
+                </select>
+                <button class="btn-action" style="margin-top:0; width: auto; padding: 12px 25px; background:var(--success)" onclick="tambahSiswa()"><i class="fas fa-plus"></i> Tambah</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th width="50">No</th><th width="120">NIS</th><th width="150">NISN</th><th>Nama Lengkap</th><th width="100">JK</th><th width="80">Aksi</th></tr>
+                    </thead>
+                    <tbody id="bodySiswa"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="asesmen" class="content-section">
+            <h2 style="color:var(--primary)"><i class="fas fa-poll-h"></i> Pengolahan Hasil Asesmen</h2>
+            <div class="card-grid">
+                <div class="doc-card" style="border-top-color: var(--secondary);">
+                    <h4><i class="fas fa-edit"></i> Nilai Formatif</h4>
+                    <p>Input data nilai proses harian siswa per Tujuan Pembelajaran (TP).</p>
+                    <button class="btn-action"><i class="fas fa-keyboard"></i> Input Data</button>
+                </div>
+                <div class="doc-card" style="border-top-color: var(--success);">
+                    <h4><i class="fas fa-file-signature"></i> Nilai Sumatif</h4>
+                    <p>Input nilai Sumatif Tengah Semester (STS) dan Akhir Semester (SAS).</p>
+                    <button class="btn-action" style="background:var(--success)"><i class="fas fa-keyboard"></i> Input Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // FUNGSI BARU UNTUK SUBMENU
+        function toggleSubmenu(containerId, sectionId, element) {
+            const container = document.getElementById(containerId);
+            const isOpen = container.classList.contains('open');
+            
+            // Tutup semua submenu lain
+            document.querySelectorAll('.menu-container').forEach(c => c.classList.remove('open'));
+            
+            // Toggle submenu yang diklik
+            if (!isOpen) {
+                container.classList.add('open');
+            }
+
+            // Jalankan fungsi showSection asli
+            showSection(sectionId, element);
+        }
+
+        // FUNGSI ASLI YANG DIPERBAUI SEDIKIT
+        function showSection(sectionId, element) {
+            document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
+            const targetSection = document.getElementById(sectionId);
+            if(targetSection) targetSection.style.display = 'block';
+
+            // Reset status active di semua menu
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+            
+            // Jika diklik langsung dari menu utama
+            if(element) {
+                element.classList.add('active');
+            } else {
+                // Jika diklik dari submenu, aktifkan menu induknya
+                const parentMenu = document.getElementById('menu-' + sectionId);
+                if(parentMenu) parentMenu.classList.add('active');
+            }
+        }
+
+        // FUNGSI-FUNGSI LAINNYA (Identitas, Siswa, dll tetap sama)
+        let tempP = "", tempK = "", tempL = "";
+        let dataSiswa = JSON.parse(localStorage.getItem('siswaKelas5')) || [];
+
+        function updateClock() {
+            const now = new Date();
+            const opsi = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const tglStr = now.toLocaleDateString('id-ID', opsi);
+            document.getElementById('clockBox').innerHTML = `<i class="far fa-calendar-alt"></i> ${tglStr} | <i class="far fa-clock"></i> ${now.toLocaleTimeString('id-ID')} WIB`;
+        }
+        setInterval(updateClock, 1000);
+
+        function gotoMenu(sectionId) {
+            const menuElem = document.getElementById('menu-' + sectionId);
+            const container = document.getElementById('container-' + sectionId);
+            if(container) container.classList.add('open');
+            showSection(sectionId, menuElem);
+        }
+
+        function togglePanelPengaturan() {
+            const p = document.getElementById('panelPengaturan');
+            p.style.display = (p.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function updateRealtime() {
+            const name = document.getElementById('editGuru').value;
+            const sekolah = document.getElementById('editSekolah').value;
+            const nip = document.getElementById('editNIP').value;
+            document.getElementById('displaySekolah').innerText = sekolah;
+            document.getElementById('displayGuru').innerText = name;
+            document.getElementById('displayNIP').innerText = nip;
+            document.getElementById('sapaan').innerText = `Selamat Datang, ${name.split(',')[0]}!`;
+        }
+
+        function previewFile(input, targetId, type) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if(targetId) document.getElementById(targetId).src = e.target.result;
+                    if(type === 'p') tempP = e.target.result;
+                    if(type === 'k') tempK = e.target.result;
+                    if(type === 'l') tempL = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function prosesKaldik(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    localStorage.setItem('kaldikFile', e.target.result);
+                    alert("✅ Berhasil! File Kalender Pendidikan telah disimpan.");
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function bukaKaldik() {
+            const fileKaldik = localStorage.getItem('kaldikFile');
+            if (fileKaldik) {
+                const win = window.open();
+                win.document.write('<iframe src="' + fileKaldik + '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>');
+            } else {
+                alert("File PDF belum ada. Silakan upload terlebih dahulu.");
+            }
+        }
+
+        function simpanIdentitas() {
+            localStorage.setItem('schoolName', document.getElementById('editSekolah').value);
+            localStorage.setItem('teacherName', document.getElementById('editGuru').value);
+            localStorage.setItem('teacherNIP', document.getElementById('editNIP').value);
+            if(tempP) localStorage.setItem('userPhoto', tempP);
+            if(tempK) localStorage.setItem('kabLogo', tempK);
+            if(tempL) localStorage.setItem('schoolLogo', tempL);
+            togglePanelPengaturan();
+            alert("Identitas berhasil diperbarui!");
+        }
+
+        function tambahSiswa() {
+            const nama = document.getElementById('inNama').value;
+            if(!nama) return alert("Nama siswa tidak boleh kosong!");
+            dataSiswa.push({
+                nis: document.getElementById('inNis').value || '-',
+                nisn: document.getElementById('inNisn').value || '-',
+                nama: nama,
+                jk: document.getElementById('inJk').value || '-'
+            });
+            renderSiswa();
+            document.querySelectorAll('.input-group input, .input-group select').forEach(i => i.value = "");
+        }
+
+        function renderSiswa() {
+            localStorage.setItem('siswaKelas5', JSON.stringify(dataSiswa));
+            const bodyS = document.getElementById('bodySiswa');
+            bodyS.innerHTML = "";
+            dataSiswa.forEach((s, index) => {
+                bodyS.innerHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${s.nis}</td>
+                        <td>${s.nisn}</td>
+                        <td><strong>${s.nama}</strong></td>
+                        <td>${s.jk}</td>
+                        <td><button onclick="hapusSiswa(${index})" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.1rem;"><i class="fas fa-trash-alt"></i></button></td>
+                    </tr>`;
+            });
+            document.getElementById('dashSiswa').innerText = `${dataSiswa.length} Siswa Terdaftar`;
+        }
+
+        function hapusSiswa(index) {
+            if(confirm("Apakah Anda yakin ingin menghapus data siswa ini?")) {
+                dataSiswa.splice(index, 1);
+                renderSiswa();
+            }
+        }
+
+        window.onload = function() {
+            updateClock();
+            renderSiswa();
+            document.getElementById('editSekolah').value = localStorage.getItem('schoolName') || "UPTD SDN MARGANTOKO 2";
+            document.getElementById('editGuru').value = localStorage.getItem('teacherName') || "Abdul Mudhar, S.Pd.";
+            document.getElementById('editNIP').value = localStorage.getItem('teacherNIP') || "NIP. 197609242023211002";
+            updateRealtime();
+            if(localStorage.getItem('userPhoto')) document.getElementById('profileDisplay').src = localStorage.getItem('userPhoto');
+            if(localStorage.getItem('kabLogo')) document.getElementById('kabDisplay').src = localStorage.getItem('kabLogo');
+            if(localStorage.getItem('schoolLogo')) document.getElementById('logoDisplay').src = localStorage.getItem('schoolLogo');
+        }
+    </script>
+</body>
+</html>
